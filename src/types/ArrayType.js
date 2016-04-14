@@ -36,7 +36,7 @@ function constructorRule(value, params, ctx) {
 function itemsRule(value, params, _ctx) {
   let errors = [];
   let promises = [];
-  let ctx = _.cloneDeep(_ctx);
+  let ctx = _.clone(_ctx);
   ctx.parent = value;
   ctx.converted = {};
 
