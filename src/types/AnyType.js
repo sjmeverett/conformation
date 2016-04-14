@@ -21,6 +21,14 @@ export default {
   },
 
 
+  only(values) {
+    if (!_.isArray(values))
+      values = [].slice.apply(arguments);
+
+    return this.rule(onlyRule, {values});
+  },
+
+
   validate(value, context) {
     let errors = [];
     let promises = [];
@@ -72,6 +80,16 @@ function requiredRule(value) {
 
   } else {
     return {valid: true};
+  }
+}
+
+
+function onlyRule(value, params, ctx) {
+  if (_.isNil(value) || value === '' || _.includes(params.values, value)) {
+    return {valid: true};
+
+  } else {
+    return error('expected one of ' + params.values);
   }
 }
 

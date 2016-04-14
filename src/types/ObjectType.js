@@ -37,46 +37,47 @@ function keysRule(value, params, _ctx) {
 
   let path = ctx.path ? (ctx.path + '.') : '';
 
-  for (let k in value) {
+  for (let k in params.schema) {
     let schema = params.schema[k];
     ctx.key = k;
     ctx.path = path + k;
 
-    if (!schema) {
-      errors.push({
-        message: 'unexpected key ' + k,
-        path: k
-      });
+    let result = schema.validate(value[k], ctx);
 
-    } else {
-      let result = schema.validate(value[k], ctx);
+    function handleResult(result) {
+      if (result.valid) {
+        if (result.hasOwnProperty('value'))
+          ctx.converted[k] = result.value;
+        else
+          ctx.converted[k] = value[k];
 
-      function handleResult(result) {
-        if (result.valid) {
-          if (result.hasOwnProperty('value'))
-            ctx.converted[k] = result.value;
-          else
-            ctx.converted[k] = value[k];
-
-        } else {
-          [].push.apply(errors, result.errors.map((error) => {
-            if (error.path) {
-              error.path = k + '.' + error.path;
-            } else {
-              error.path = k;
-            }
-
-            return error;
-          }));
-        }
-      }
-
-      if (result.then) {
-        promises.push(result.then(handleResult));
       } else {
-        handleResult(result);
+        [].push.apply(errors, result.errors.map((error) => {
+          if (error.path) {
+            error.path = k + '.' + error.path;
+          } else {
+            error.path = k;
+          }
+
+          return error;
+        }));
       }
     }
+
+    if (result.then) {
+      promises.push(result.then(handleResult));
+    } else {
+      handleResult(result);
+    }
+  }
+
+  let difference = _.difference(_.keys(value), _.keys(params.schema));
+
+  if (difference.length) {
+    [].push.apply(errors, difference.map((key) => ({
+      message: 'unexpected key ' + key,
+      path: key
+    })));
   }
 
   function finish() {

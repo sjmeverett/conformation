@@ -135,6 +135,13 @@ describe('Schema', function () {
       expect(required.validate('fish').valid).to.be.true;
       expect(schema.validate('').valid).to.be.true;
     });
+
+    it('should have a only() rule', function () {
+      let schema = Schema.any().only(1, 2);
+      expect(schema.validate(1).valid).to.be.true;
+      expect(schema.validate(2).valid).to.be.true;
+      expect(schema.validate(3).valid).to.be.false;
+    });
   });
 
 
