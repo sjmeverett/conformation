@@ -24,8 +24,8 @@ describe('Schema', function () {
       };
 
       let schema = Schema.any()
-        ._mutate(rule1, {a: 1})
-        ._mutate(rule2, {b: 2});
+        .rule(rule1, {a: 1})
+        .rule(rule2, {b: 2});
 
       schema.validate('the value');
 
@@ -43,8 +43,8 @@ describe('Schema', function () {
       };
 
       let schema = Schema.any()
-        ._mutate(rule1)
-        ._mutate(rule2);
+        .rule(rule1)
+        .rule(rule2);
 
       expect(schema.validate()).to.eql({
         valid: false,
@@ -65,8 +65,8 @@ describe('Schema', function () {
       };
 
       let schema = Schema.any()
-        ._mutate(rule1)
-        ._mutate(rule2);
+        .rule(rule1)
+        .rule(rule2);
 
       expect(schema.validate()).to.eql({
         valid: false,
@@ -86,8 +86,8 @@ describe('Schema', function () {
       };
 
       let schema = Schema.any()
-        ._mutate(rule1)
-        ._mutate(rule2);
+        .rule(rule1)
+        .rule(rule2);
 
       expect(schema.validate()).to.eql({
         valid: true,
@@ -105,8 +105,8 @@ describe('Schema', function () {
       };
 
       let schema = Schema.any()
-        ._mutate(rule1)
-        ._mutate(rule2);
+        .rule(rule1)
+        .rule(rule2);
 
       return schema.validate().then(function (result) {
         expect(result).to.eql({valid: true});
@@ -263,6 +263,34 @@ describe('Schema', function () {
         ]
       });
     });
+
+    it('should set path and key properly', function () {
+      let schema = Schema.object().keys({
+        a: Schema.any().rule(function (value, params, ctx) {
+          expect(ctx.key).to.equal('a');
+          return {valid: true};
+        }),
+
+        b: Schema.object().keys({
+          c: Schema.any().rule(function (value, params, ctx) {
+            expect(ctx.key).to.equal('c');
+            expect(ctx.path).to.equal('b.c');
+            ctx.meta = 5;
+            return {valid: true};
+          })
+        }),
+
+        d: Schema.any().rule(function (value, params, ctx) {
+          expect(ctx.key).to.equal('d');
+          expect(ctx.path).to.equal('d');
+          return {valid: true};
+        })
+      });
+
+      let ctx = {};
+      schema.validate({a: 1, b: {c: 2}, d: 3}, ctx);
+      expect(ctx.meta).to.equal(5);
+    })
   });
 
 

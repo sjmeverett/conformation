@@ -6,7 +6,7 @@ import {error} from '../util';
 export default {
   rules: [],
 
-  _mutate(rule, params) {
+  rule(rule, params) {
     return _.mergeWith({}, this, {rules: [{rule, params}]}, mergeArray);
   },
 
@@ -17,7 +17,7 @@ export default {
 
 
   required() {
-    return this._mutate(requiredRule);
+    return this.rule(requiredRule);
   },
 
 

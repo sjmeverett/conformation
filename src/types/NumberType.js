@@ -7,12 +7,12 @@ import {error, isEmpty} from '../util';
 export default _.merge({}, AnyType, {
 
   constructor(params) {
-    return this._mutate(constructorRule, params);
+    return this.rule(constructorRule, params);
   },
 
 
   integer() {
-    return this._mutate(integerRule);
+    return this.rule(integerRule);
   }
 });
 

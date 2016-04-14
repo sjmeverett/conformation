@@ -7,17 +7,17 @@ import {error, isEmpty} from '../util';
 export default _.merge({}, AnyType, {
 
   constructor(params) {
-    return this._mutate(constructorRule, params);
+    return this.rule(constructorRule, params);
   },
 
 
   items(schema) {
-    return this._mutate(itemsRule, {schema});
+    return this.rule(itemsRule, {schema});
   },
 
 
   length(length) {
-    return this._mutate(lengthRule, {length});
+    return this.rule(lengthRule, {length});
   }
 
 });
@@ -33,17 +33,27 @@ function constructorRule(value, params, ctx) {
 }
 
 
-function itemsRule(value, params, ctx) {
+function itemsRule(value, params, _ctx) {
   let errors = [];
   let promises = [];
+  let ctx = _.cloneDeep(_ctx);
+  ctx.parent = value;
+  ctx.converted = {};
+
+  let path = ctx.path ? (ctx.path + '.') : '';
 
   for (let i in value) {
+    ctx.key = i;
+    ctx.path = path + i;
+
     let result = params.schema.validate(value[i], ctx);
 
     function handleResult(result) {
       if (result.valid) {
         if (result.hasOwnProperty('value'))
-          value[i] = result.value;
+          ctx.converted[i] = result.value;
+        else
+          ctx.converted[i] = value[i];
 
       } else {
         [].push.apply(errors, result.errors.map((error) => {
@@ -66,10 +76,12 @@ function itemsRule(value, params, ctx) {
   }
 
   function finish() {
+    _.merge(_ctx, _.omit(ctx, ['parent', 'key', 'converted']));
+
     if (errors.length) {
       return {valid: false, errors};
     } else {
-      return {valid: true, value};
+      return {valid: true, value: ctx.converted};
     }
   }
 
