@@ -4,20 +4,21 @@ import AnyType from './AnyType';
 import {error, isEmpty} from '../util';
 
 
-export default class StringType extends AnyType {
+export default _.merge({}, AnyType, {
+
   constructor(params) {
-    super();
-    this.validator.addRule(validate, params);
-  }
+    return this._mutate(constructorRule, params);
+  },
+
 
   regex(pattern) {
-    this.validator.addRule(regex, {pattern});
-    return this;
+    return this._mutate(regexRule, {pattern});
   }
-};
+
+});
 
 
-function validate(value, params, ctx) {
+function constructorRule(value, params, ctx) {
   if (isEmpty(value, ctx) || _.isString(value)) {
     return {valid: true};
 
@@ -27,7 +28,7 @@ function validate(value, params, ctx) {
 }
 
 
-function regex(value, params, ctx) {
+function regexRule(value, params, ctx) {
   if (isEmpty(value, ctx) || value.match(params.pattern)) {
     return {valid: true};
 

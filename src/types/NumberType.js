@@ -4,20 +4,20 @@ import AnyType from './AnyType';
 import {error, isEmpty} from '../util';
 
 
-export default class NumberType extends AnyType {
+export default _.merge({}, AnyType, {
+
   constructor(params) {
-    super();
-    this.validator.addRule(validate, params);
+    return this._mutate(constructorRule, params);
+  },
+
+
+  integer() {
+    return this._mutate(integerRule);
   }
-
-  integer(pattern) {
-    this.validator.addRule(integer);
-    return this;
-  }
-};
+});
 
 
-function validate(value, params, ctx) {
+function constructorRule(value, params, ctx) {
   if (isEmpty(value, ctx) || _.isNumber(value)) {
     return {valid: true};
 
@@ -30,7 +30,7 @@ function validate(value, params, ctx) {
 }
 
 
-function integer(value, params, ctx) {
+function integerRule(value, params, ctx) {
   if ((value % 1) === 0) {
     return {valid: true};
 

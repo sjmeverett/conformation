@@ -5,6 +5,114 @@ import {expect} from 'chai';
 
 
 describe('Schema', function () {
+  describe('validate', function () {
+    it('should run registered rules', function () {
+      let rule1Called, rule2Called;
+
+      let rule1 = (value, params) => {
+        rule1Called = true;
+        expect(value).to.equal('the value');
+        expect(params).to.eql({a: 1});
+        return {valid: true};
+      };
+
+      let rule2 = (value, params) => {
+        rule2Called = true;
+        expect(value).to.equal('the value');
+        expect(params).to.eql({b: 2});
+        return {valid: true};
+      };
+
+      let schema = Schema.any();
+      schema.rules.push({rule: rule1, params: {a: 1}});
+      schema.rules.push({rule: rule2, params: {b: 2}});
+      schema.validate('the value');
+
+      expect(rule1Called).to.be.true;
+      expect(rule2Called).to.be.true;
+    });
+
+    it('should return errors of all rules', function () {
+      let rule1 = (value, params) => {
+        return {valid: false, errors: [{message: '1'}]};
+      };
+
+      let rule2 = (value, params) => {
+        return {valid: false, errors: [{message: '2'}]};
+      };
+
+      let schema = Schema.any();
+      schema.rules.push({rule: rule1});
+      schema.rules.push({rule: rule2});
+
+      expect(schema.validate()).to.eql({
+        valid: false,
+        errors: [
+          {message: '1'},
+          {message: '2'}
+        ]
+      });
+    });
+
+    it('should validate false if only one rule fails', function () {
+      let rule1 = (value, params) => {
+        return {valid: false, errors: [{message: '1'}]};
+      };
+
+      let rule2 = (value, params) => {
+        return {valid: true};
+      };
+
+      let schema = Schema.any();
+      schema.rules.push({rule: rule1});
+      schema.rules.push({rule: rule2});
+
+      expect(schema.validate()).to.eql({
+        valid: false,
+        errors: [
+          {message: '1'}
+        ]
+      });
+    });
+
+    it('should return the last converted value', function () {
+      let rule1 = (value, params) => {
+        return {valid: true, value: 1};
+      };
+
+      let rule2 = (value, params) => {
+        return {valid: true, value: 2};
+      };
+
+      let schema = Schema.any();
+      schema.rules.push({rule: rule1});
+      schema.rules.push({rule: rule2});
+
+      expect(schema.validate()).to.eql({
+        valid: true,
+        value: 2
+      });
+    });
+
+    it('should work with promises', function () {
+      let rule1 = (value, params) => {
+        return Promise.resolve({valid: true});
+      };
+
+      let rule2 = (value, params) => {
+        return {valid: true};
+      };
+
+      let schema = Schema.any();
+      schema.rules.push({rule: rule1});
+      schema.rules.push({rule: rule2});
+
+      return schema.validate().then(function (result) {
+        expect(result).to.eql({valid: true});
+      });
+    });
+  });
+
   describe('any', function () {
     it('should pass anything', function () {
       let schema = Schema.any();
@@ -18,11 +126,13 @@ describe('Schema', function () {
     });
 
     it('should have a required() rule', function () {
-      let schema = Schema.any().required();
-      expect(schema.validate('').valid).to.be.false;
-      expect(schema.validate().valid).to.be.false;
-      expect(schema.validate(null).valid).to.be.false;
-      expect(schema.validate('fish').valid).to.be.true;
+      let schema = Schema.any();
+      let required = schema.required();
+      expect(required.validate('').valid).to.be.false;
+      expect(required.validate().valid).to.be.false;
+      expect(required.validate(null).valid).to.be.false;
+      expect(required.validate('fish').valid).to.be.true;
+      expect(schema.validate('').valid).to.be.true;
     });
   });
 
@@ -173,8 +283,8 @@ describe('Schema', function () {
   describe('create', function () {
     it('should isolate modifications', function () {
       let MySchema = Schema.create();
-      MySchema.NumberType.prototype.foo = 5;
-      expect(Schema.NumberType.prototype.foo).to.not.exist;
+      MySchema.types.number.foo = 5;
+      expect(Schema.types.number.foo).to.not.exist;
     });
   });
 });

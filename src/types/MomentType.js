@@ -1,28 +1,29 @@
 
+import _ from 'lodash';
 import AnyType from './AnyType';
 import moment from 'moment';
 import {error, isEmpty} from '../util';
 
 
-export default class MomentType extends AnyType {
+export default _.merge({}, AnyType, {
+
   constructor(params) {
-    super();
-    this.validator.addRule(validate, params);
-  }
+    return this._mutate(constructorRule, params);
+  },
+
 
   date() {
-    this.validator.addRule(date);
-    return this;
+    return this._mutate(dateRule);
+  },
+
+
+  format(format) {
+    return this._mutate(formatRule, {format});
   }
-
-  format(fmt) {
-    this.validator.addRule(format, {format: fmt})
-    return this;
-  }
-};
+});
 
 
-function validate(value, params, ctx) {
+function constructorRule(value, params, ctx) {
   if (isEmpty(value, ctx) || moment.isMoment(value)) {
     return {valid: true};
 
@@ -38,12 +39,14 @@ function validate(value, params, ctx) {
   } else {
     return error('expected a moment');
   }
-};
+}
 
-function date(value) {
+
+function dateRule(value) {
   return {valid: true, value: value.toDate()};
 }
 
-function format(value, paramz) {
+
+function formatRule(value, params) {
   return {valid: true, value: value.format(params.format)};
 }

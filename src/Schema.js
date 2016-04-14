@@ -3,36 +3,20 @@ import _ from 'lodash';
 import path from 'path';
 import requireAll from 'require-all';
 
-let Schema = {};
+let Schema = {types: {}};
 export default Schema;
 
 
 Schema.create = function () {
-  return _.cloneDeepWith(this, cloneClass);
+  return _.cloneDeep(this);
 };
 
-function cloneClass(value) {
-  if (value instanceof Function) {
-    let Type = new Function(`return function ${value.name}() {};`)();
-    Type.prototype = Object.create(value.prototype);
-    return Type;
-  }
-}
 
+Schema.addType = function (type, name) {
+  this.types[name] = type;
 
-Schema.addType = function (Type, name) {
-  this[Type.name] = Type;
-
-  if (!name) {
-    name = _.camelCase(Type.name);
-    let m = name.match(/(.+)Type$/);
-
-    if (m)
-      name = m[1];
-  }
-  
   this[name] = function (params) {
-    return new this[Type.name](params);
+    return this.types[name].constructor(params);
   };
 };
 
@@ -45,11 +29,13 @@ Schema.isSchema = function (obj) {
 // load types
 let types = requireAll({
   dirname: path.join(__dirname, '/types'),
+  filter: /(.+)Type\.js$/,
   resolve: function (module) {
     return module.__esModule ? module.default : module;
-  }
+  },
+  map: _.camelCase
 });
 
 for (let k in types) {
-  Schema.addType(types[k]);
+  Schema.addType(types[k], k);
 }

@@ -5,21 +5,20 @@ import Promise from 'any-promise';
 import {error, isEmpty} from '../util';
 
 
-export default class ObjectType extends AnyType {
+export default _.merge({}, AnyType, {
+
   constructor(params) {
-    super();
-    this.validator.addRule(validate, params);
-  }
+    return this._mutate(constructorRule, params);
+  },
 
 
   keys(schema) {
-    this.validator.addRule(keys, {schema});
-    return this;
+    return this._mutate(keysRule, {schema});
   }
-};
+});
 
 
-function validate(value, params, ctx) {
+function constructorRule(value, params, ctx) {
   if (isEmpty(value, ctx) || _.isObject(value)) {
     return {valid: true};
 
@@ -29,7 +28,7 @@ function validate(value, params, ctx) {
 }
 
 
-function keys(value, params, ctx) {
+function keysRule(value, params, ctx) {
   let errors = [];
   let promises = [];
 
@@ -43,7 +42,7 @@ function keys(value, params, ctx) {
       });
 
     } else {
-      let result = schema.validator.validate(value[k], ctx);
+      let result = schema.validate(value[k], ctx);
 
       function handleResult(result) {
         if (result.valid) {

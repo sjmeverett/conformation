@@ -4,25 +4,26 @@ import AnyType from './AnyType';
 import {error, isEmpty} from '../util';
 
 
-export default class ArrayType extends AnyType {
+export default _.merge({}, AnyType, {
+
   constructor(params) {
-    super();
-    this.validator.addRule(validate, params);
-  }
+    return this._mutate(constructorRule, params);
+  },
+
 
   items(schema) {
-    this.validator.addRule(items, {schema})
-    return this;
+    return this._mutate(itemsRule, {schema});
+  },
+
+
+  length(length) {
+    return this._mutate(lengthRule, {length});
   }
 
-  length(n) {
-    this.validator.addRule(length, {length: n});
-    return this;
-  }
-};
+});
 
 
-function validate(value, params, ctx) {
+function constructorRule(value, params, ctx) {
   if (isEmpty(value, ctx) || _.isArray(value)) {
     return {valid: true};
 
@@ -32,12 +33,12 @@ function validate(value, params, ctx) {
 }
 
 
-function items(value, params, ctx) {
+function itemsRule(value, params, ctx) {
   let errors = [];
   let promises = [];
 
   for (let i in value) {
-    let result = params.schema.validator.validate(value[i], ctx);
+    let result = params.schema.validate(value[i], ctx);
 
     function handleResult(result) {
       if (result.valid) {
@@ -80,7 +81,7 @@ function items(value, params, ctx) {
 }
 
 
-function length(value, params, context) {
+function lengthRule(value, params, context) {
   if (value.length === params.length) {
     return {valid: true};
 
