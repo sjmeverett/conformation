@@ -23,9 +23,10 @@ describe('Schema', function () {
         return {valid: true};
       };
 
-      let schema = Schema.any();
-      schema.rules.push({rule: rule1, params: {a: 1}});
-      schema.rules.push({rule: rule2, params: {b: 2}});
+      let schema = Schema.any()
+        ._mutate(rule1, {a: 1})
+        ._mutate(rule2, {b: 2});
+
       schema.validate('the value');
 
       expect(rule1Called).to.be.true;
@@ -41,9 +42,9 @@ describe('Schema', function () {
         return {valid: false, errors: [{message: '2'}]};
       };
 
-      let schema = Schema.any();
-      schema.rules.push({rule: rule1});
-      schema.rules.push({rule: rule2});
+      let schema = Schema.any()
+        ._mutate(rule1)
+        ._mutate(rule2);
 
       expect(schema.validate()).to.eql({
         valid: false,
@@ -63,9 +64,9 @@ describe('Schema', function () {
         return {valid: true};
       };
 
-      let schema = Schema.any();
-      schema.rules.push({rule: rule1});
-      schema.rules.push({rule: rule2});
+      let schema = Schema.any()
+        ._mutate(rule1)
+        ._mutate(rule2);
 
       expect(schema.validate()).to.eql({
         valid: false,
@@ -84,9 +85,9 @@ describe('Schema', function () {
         return {valid: true, value: 2};
       };
 
-      let schema = Schema.any();
-      schema.rules.push({rule: rule1});
-      schema.rules.push({rule: rule2});
+      let schema = Schema.any()
+        ._mutate(rule1)
+        ._mutate(rule2);
 
       expect(schema.validate()).to.eql({
         valid: true,
@@ -103,9 +104,9 @@ describe('Schema', function () {
         return {valid: true};
       };
 
-      let schema = Schema.any();
-      schema.rules.push({rule: rule1});
-      schema.rules.push({rule: rule2});
+      let schema = Schema.any()
+        ._mutate(rule1)
+        ._mutate(rule2);
 
       return schema.validate().then(function (result) {
         expect(result).to.eql({valid: true});

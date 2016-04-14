@@ -7,7 +7,7 @@ export default {
   rules: [],
 
   _mutate(rule, params) {
-    return _.merge({}, this, {rules: [{rule, params}]});
+    return _.mergeWith({}, this, {rules: [{rule, params}]}, mergeArray);
   },
 
 
@@ -72,5 +72,12 @@ function requiredRule(value) {
 
   } else {
     return {valid: true};
+  }
+}
+
+
+function mergeArray(objValue, srcValue) {
+  if (_.isArray(objValue)) {
+    return objValue.concat(srcValue);
   }
 }
