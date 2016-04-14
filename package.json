@@ -1,10 +1,11 @@
 {
   "name": "conformation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Yet another object validator",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-register"
+    "test": "mocha --compilers js:babel-register",
+    "prepublish": "grunt"
   },
   "author": "Stewart MacKenzie-Leigh",
   "license": "ISC",
@@ -15,6 +16,7 @@
     "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-babel": "^6.0.0",
+    "grunt-contrib-clean": "^1.0.0",
     "load-grunt-tasks": "^3.5.0",
     "mocha": "^2.4.5"
   },
