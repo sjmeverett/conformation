@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import Promise from 'any-promise';
 import {error} from '../util';
 
 
@@ -70,6 +71,11 @@ export default {
     } else {
       return finish();
     }
+  },
+
+
+  validateAsync(value, context) {
+    return Promise.resolve(this.validate(value, context));
   }
 };
 

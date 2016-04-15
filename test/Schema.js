@@ -112,6 +112,31 @@ describe('Schema', function () {
         expect(result).to.eql({valid: true});
       });
     });
+
+    it('should have an always async version', function () {
+      let rule1Called, rule2Called;
+
+      let rule1 = (value, params) => {
+        rule1Called = true;
+        return {valid: true};
+      };
+
+      let rule2 = (value, params) => {
+        rule2Called = true;
+        return {valid: true};
+      };
+
+      let schema = Schema.any()
+        .rule(rule1, {a: 1})
+        .rule(rule2, {b: 2});
+
+      return schema.validateAsync('the value')
+        .then(function (result) {
+          expect(result.valid).to.be.true;
+          expect(rule1Called).to.be.true;
+          expect(rule2Called).to.be.true;
+        });
+    });
   });
 
   describe('any', function () {
