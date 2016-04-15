@@ -74,12 +74,12 @@ export default {
 };
 
 
-function requiredRule(value) {
-  if (_.isNil(value) || value === '') {
-    return error('required');
+function requiredRule(value, params, ctx) {
+  if (ctx.skipRequired || !(_.isNil(value) || value === '')) {
+    return {valid: true};
 
   } else {
-    return {valid: true};
+    return error('required');
   }
 }
 

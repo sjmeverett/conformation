@@ -136,6 +136,11 @@ describe('Schema', function () {
       expect(schema.validate('').valid).to.be.true;
     });
 
+    it('should allow required() to be skipped', function () {
+      let schema = Schema.any().required();
+      expect(schema.validate('', {skipRequired: true}).valid).to.be.true;
+    });
+
     it('should have a only() rule', function () {
       let schema = Schema.any().only(1, 2);
       expect(schema.validate(1).valid).to.be.true;
