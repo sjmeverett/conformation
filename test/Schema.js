@@ -301,6 +301,15 @@ describe('Schema', function () {
       });
     });
 
+    it('should allow access to key rules', function () {
+      let schema = Schema.object().keys({
+        a: Schema.number()
+      });
+
+      let a = schema.keySchemas.a;
+      expect(a.validate(1).valid).to.be.true;
+    });
+
     it('should set path and key properly', function () {
       let schema = Schema.object().keys({
         a: Schema.any().rule(function (value, params, ctx) {

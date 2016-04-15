@@ -13,6 +13,7 @@ export default _.merge({}, AnyType, {
 
 
   keys(schema) {
+    this.keySchemas = schema;
     return this.rule(keysRule, {schema});
   }
 });
