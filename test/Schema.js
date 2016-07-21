@@ -336,7 +336,15 @@ describe('Schema', function () {
       let ctx = {};
       schema.validate({a: 1, b: {c: 2}, d: 3}, ctx);
       expect(ctx.meta).to.equal(5);
-    })
+    });
+
+    it('should not set non-existent properties', function () {
+      let schema = Schema.object().keys({
+        a: Schema.array().items(Schema.object()),
+      });
+
+      expect(schema.validate({}).value).to.eql({});
+    });
   });
 
 

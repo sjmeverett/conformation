@@ -30,6 +30,9 @@ function constructorRule(value, params, ctx) {
 
 
 function keysRule(value, params, _ctx) {
+  if (isEmpty(value, _ctx))
+    return {valid: true};
+
   let errors = [];
   let promises = [];
   let ctx = _.clone(_ctx);
@@ -49,7 +52,7 @@ function keysRule(value, params, _ctx) {
       if (result.valid) {
         if (result.hasOwnProperty('value'))
           ctx.converted[k] = result.value;
-        else
+        else if (value.hasOwnProperty(k))
           ctx.converted[k] = value[k];
 
       } else {

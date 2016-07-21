@@ -34,11 +34,14 @@ function constructorRule(value, params, ctx) {
 
 
 function itemsRule(value, params, _ctx) {
+  if (isEmpty(value, _ctx))
+    return {valid: true};
+
   let errors = [];
   let promises = [];
   let ctx = _.clone(_ctx);
   ctx.parent = value;
-  ctx.converted = {};
+  ctx.converted = value;
 
   let path = ctx.path ? (ctx.path + '.') : '';
 
